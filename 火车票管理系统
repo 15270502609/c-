@@ -1,0 +1,2138 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<time.h>
+#include<conio.h>
+#include<Windows.h>
+typedef struct _user
+{
+	char userID[20];   //�û�����֤
+	char name[20];    //�û�����
+	char phoneNum[20];    //�û��绰
+	char type[20];      //(����/ѧ��)
+	char password[20];   //�û���¼����
+	char traNum[20];     //�𳵳���
+	char tratype[20];    //������
+	double price;         //��Ʊ��
+	char Sstation[20];    //��ʼվ
+	char Estation[20];     //�յ�վ
+	char Stime[64];       //����ʱ��
+	char seatType[20];        //��λ����
+	int status;           //1��ʾ��Ʊ0��ʾ��Ʊ
+	struct _user *next;     
+}USER;
+typedef struct _train
+{
+	char traNum[20];     //�𳵳���
+	char tratype[20];    //������
+	char Sstation[20];    //��ʼվ
+	char Estation[20];     //�յ�վ
+	char day[64];         //��Ʊ����
+	char Stime[64];       //����ʱ��
+	char Etime[64];       //��վʱ��
+	int Btotal;        //��������Ʊ��
+	int Bremain;       //��������Ʊ��
+	double Bprice;        //������Ʊ��
+	int Ftotal;        //һ������Ʊ��
+	int Fremain;       //һ������Ʊ��
+	double Fprice;        //һ����Ʊ��
+	int Stotal;        //��������Ʊ��
+	int Sremain;       //��������Ʊ��
+	double Sprice;        //������Ʊ��
+	int bedtotal;      //������Ʊ��
+	int bedremain;     //������Ʊ��
+	double bedprice;      //���̼۸�
+	int total;         //Ӳ����Ʊ��
+	int remain;        //Ӳ����Ʊ�� 
+	double price;         //Ӳ��Ʊ��
+	int standtotal;        //վƱ��Ʊ��
+	int standremain;       //վƱ��Ʊ��
+	double standprice;        //վƱ�۸� 
+}TICKET;
+#define  N  50
+TICKET train[N];
+USER *head=NULL;
+char password[20] = {0};
+//��������
+void mainmenu();
+void managermenu();
+void usermenu();
+int Register(char *pass);   //����Ա��¼
+void passwd();            //������Ǻ�
+void manage();
+void searchmessage();    //����Ա��ѯ����
+void modify();          //����Ա�޸Ľ���
+void traindata();       //�������·
+void trainsave();       //�������·
+int count();            //���������
+void xg_line();         //�޸Ļ���·
+void xg_time();         //�޸Ļ�ʱ��
+void xg_Tprice();       //�޸Ļ�Ʊ��
+void xg_Ttotal();       //�޸Ļ�Ʊ��
+void train_delete();    //����Աɾ������·����
+void train_add();       //����Ա���ӻ���·����
+                  //�û�����
+void userlist();             //�����û�����
+void zhuce();                //ע�����
+void input(USER *tmpUser);   //��ӡ�ͻ�����
+void userZC(USER newUser);   //�û�ע��
+void userRe();               //�û���¼
+void usermanage();           //�û�����
+int checkSstation(char *Sstation);   //�ж���ʼվ�Ƿ����
+int checkEstation(char *Sstation);    //�ж��յ�վ�Ƿ����
+void trainsearch(char *station1,char *station2);
+void buy();                   //�û���Ʊ
+void buymanage();             //�û���Ʊ����
+void headshow();              //��Ʊ��ͷ
+void show(USER*tmpUser);      //��ӡ��Ʊ����
+void refund();                //�û���Ʊ
+void Tmedify();               //�û���ǩ
+void show_usermessage();      //��ѯ�û�������Ϣ
+//������
+
+void mainmenu()
+{
+	printf("***************************************\n");
+	printf("********��ӭʹ�û𳵹���ϵͳ***********\n");
+	printf("********1.�������Ա����***************\n");
+	printf("********2.�����û�����*****************\n");
+	printf("********3.�˳�ϵͳ*********************\n");
+	printf("***************************************\n");
+	printf("����������ѡ��:\n");
+}
+//����Ա����
+
+void managermenu()
+{
+	printf("=========================================\n");
+	printf("=========���ѽ������Ա����==============\n");
+	printf("=========1.��ѯ��Ʊ��Ϣ================\n");
+	printf("=========2.�޸Ļ�Ʊ��Ϣ================\n");
+	printf("=========3.ɾ������·==================\n");
+	printf("=========4.���ӻ���·==================\n");
+	printf("=========5.�������˵�====================\n");
+	printf("=========================================\n");
+	printf("����������ѡ��:\n");
+}
+// �û�����
+
+void usermenu()
+{
+	printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
+	printf("^^^^^^^^^��ӭʹ�ñ�ϵͳ��Ʊ^^^^^^^^^^^^^^\n");
+	printf("^^^^^^^^^^^^1.��ѯ��Ʊ^^^^^^^^^^^^^^^^^\n");
+	printf("^^^^^^^^^^^^2.�����Ʊ^^^^^^^^^^^^^^^^^\n");
+	printf("^^^^^^^^^^^^3.�˶���Ʊ^^^^^^^^^^^^^^^^^\n");
+	printf("^^^^^^^^^^^^4.��ǩ��Ʊ^^^^^^^^^^^^^^^^^\n");
+	printf("^^^^^^^^^^^^5.��ѯ������Ϣ^^^^^^^^^^^^^^^\n");
+	printf("^^^^^^^^^^^^6.�������˵�^^^^^^^^^^^^^^^^^\n");
+	printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
+	printf("����������ѡ��:\n");
+}
+          //������Ǻ�
+void passwd()  
+{  
+    char c;  
+    int i=0;  
+    while ((c=getch()) != '\r')  
+	{
+        if(c!='\b')
+		{
+		    password[i] = c;                  //ȫ�ֱ���  
+            putchar('*');  
+            i++;  
+		}
+	    if(c=='\b')     //������� �˸� ����ԭ�������ֵ 
+		{
+		    printf("\b");
+		    i=i-1;
+		}
+	}
+}
+//����Ա��¼
+
+int Register(char *pass)  
+{
+	int n=3;
+	int flag=0;
+	do
+	{
+		printf("����������:");
+		passwd();
+		if(!strcmp(password,pass))
+		{
+			printf("��ϲ,��¼�ɹ�!\n");
+			flag=1;
+			break;
+		}
+		else
+		{
+			printf("��������,����������!\n");
+			n--;
+		}
+	}while(n>0);
+	if(flag==0)
+	{
+		printf("��¼ʧ��!\n");
+	}
+	if(flag==1)
+	{
+		system("cls");
+		printf("��ϲ,��¼�ɹ�!\n");
+		manage();
+	}
+	return 0;
+
+}
+
+//����Ա��������
+
+void manage()   
+{
+	int choice;
+	while(1)
+	{
+		managermenu();
+		scanf("%d",&choice);
+		switch(choice)
+		{
+		case 1:
+			searchmessage();
+			break;
+		case 2:
+			modify();
+			break;
+		case 3:
+			train_delete();
+			printf("���������������..");    //��������
+		    getch();
+		    system("cls");
+			break;
+		case 4:
+			train_add();
+			printf("���������������..");    //��������
+		    getch();
+		    system("cls");
+			break;
+		case 5:
+			break;
+		}
+		if(choice==5)
+		{
+			break;
+		}
+	}
+}
+
+//����Ա��ѯ����
+void searchmessage()   
+{
+	int choice,i,j;
+	char station1[20],station2[20];
+	printf("*******************************\n");
+	printf("****  1.��ʾ��·������   ****\n");
+	printf("****  2.����ʼվ��ѯ��·   ****\n");
+	printf("****  3.���յ�վ��ѯ��·   ****\n");
+	printf("****  4.�˳���ѯ           ****\n");
+	printf("*******************************\n");
+	printf("���������ѡ��:\n");
+	scanf("%d",&choice);
+	switch(choice)
+	{
+	case 1:
+		printf("���ڹ���%d�˻�\n",j=count());
+		printf("���������������..");
+		getch();
+		system("cls");
+		searchmessage();
+		break;
+	case 2:
+		printf("��������ʼվ:");
+		scanf("%s",station1);
+		for(i=0;i<N;i++)
+		{
+			if(strcmp(train[i].Sstation,station1)==0)
+			{
+				if(strcmp(train[i].tratype,"�տ�")==0)
+				{
+			    	printf("|--------|--------------|-----------|-----------|-----------|\n");
+	                printf("|������|��ʼվ--�յ�վ|����Ʊ|Ʊ��|Ӳ��Ʊ|Ʊ��|����Ʊ|Ʊ��|\n");
+				    printf("|%-8s|%-6s--%-6s|%-6d|%-4.lf|%-6d|%-4.lf|%-6d|%-4.lf\n",train[i].tratype,train[i].Sstation,
+				    train[i].Estation,train[i].bedtotal,train[i].bedprice,train[i].total,train[i].price,train[i].standtotal,train[i].standprice);
+				    printf("|����|����ʱ��--��վʱ��|***��Ʊ��**|**��Ʊ��***|***��Ʊ��**|\n");
+				    printf("|%-4s|%-8s--%-8s|**%-6d**|**%-6d**|**%-6d**|\n",train[i].traNum,train[i].Stime,
+			    	train[i].Etime,train[i].bedremain,train[i].remain,train[i].standremain);
+				    printf("|----|------------------|-----------|-----------|-----------|\n");
+				}
+			    if(strcmp(train[i].tratype,"����")==0)
+				{
+			      	printf("|--------|--------------|-----------|-----------|-----------|\n");
+	                printf("|������|��ʼվ--�յ�վ|������|Ʊ��|һ����|Ʊ��|������|Ʊ��|\n");
+				    printf("|%-8s|%-6s--%-6s|%-6d|%-4.lf|%-6d|%-4.lf|%-6d|%-4.lf\n",train[i].tratype,train[i].Sstation,
+				    train[i].Estation,train[i].Btotal,train[i].Bprice,train[i].Ftotal,train[i].Fprice,train[i].Stotal,train[i].Sprice);
+				    printf("|����|����ʱ��--��վʱ��|***��Ʊ��**|**��Ʊ��***|***��Ʊ��**|\n");
+				    printf("|%-4s|%-8s--%-8s|**%-6d**|**%-6d**|**%-6d**|\n",train[i].traNum,train[i].Stime,
+				    train[i].Etime,train[i].Bremain,train[i].Fremain,train[i].Sremain);
+				    printf("|----|------------------|-----------|-----------|-----------|\n");
+				}
+			}
+		}
+		printf("���������������..");
+		getch();
+		system("cls");
+		searchmessage();
+       break;
+	case 3:
+		printf("�������յ�վ:");
+		scanf("%s",station2);
+		for(i=0;i<N;i++)
+		{
+			if(strcmp(train[i].Estation,station2)==0)
+			{
+				if(strcmp(train[i].tratype,"�տ�")==0)
+				{
+			    	printf("|--------|--------------|-----------|-----------|-----------|\n");
+	                printf("|������|��ʼվ--�յ�վ|����Ʊ|Ʊ��|Ӳ��Ʊ|Ʊ��|����Ʊ|Ʊ��|\n");
+				    printf("|%-8s|%-6s--%-6s|%-6d|%-4.lf|%-6d|%-4.lf|%-6d|%-4.lf\n",train[i].tratype,train[i].Sstation,
+				    train[i].Estation,train[i].bedtotal,train[i].bedprice,train[i].total,train[i].price,train[i].standtotal,train[i].standprice);
+				    printf("|����|����ʱ��--��վʱ��|***��Ʊ��**|**��Ʊ��***|***��Ʊ��**|\n");
+				    printf("|%-4s|%-8s--%-8s|**%-6d**|**%-6d**|**%-6d**|\n",train[i].traNum,train[i].Stime,
+			    	train[i].Etime,train[i].bedremain,train[i].remain,train[i].standremain);
+				    printf("|----|------------------|-----------|-----------|-----------|\n");
+				}
+			    if(strcmp(train[i].tratype,"����")==0)
+				{
+			      	printf("|--------|--------------|-----------|-----------|-----------|\n");
+	                printf("|������|��ʼվ--�յ�վ|������|Ʊ��|һ����|Ʊ��|������|Ʊ��|\n");
+				    printf("|%-8s|%-6s--%-6s|%-6d|%-4.lf|%-6d|%-4.lf|%-6d|%-4.lf\n",train[i].tratype,train[i].Sstation,
+				    train[i].Estation,train[i].Btotal,train[i].Bprice,train[i].Ftotal,train[i].Fprice,train[i].Stotal,train[i].Sprice);
+				    printf("|����|����ʱ��--��վʱ��|***��Ʊ��**|**��Ʊ��***|***��Ʊ��**|\n");
+				    printf("|%-4s|%-8s--%-8s|**%-6d**|**%-6d**|**%-6d**|\n",train[i].traNum,train[i].Stime,
+				    train[i].Etime,train[i].Bremain,train[i].Fremain,train[i].Sremain);
+				    printf("|----|------------------|-----------|-----------|-----------|\n");
+				}
+			}
+		}
+		printf("���������������..");
+		getch();
+		system("cls");
+		searchmessage();
+		break;
+	case 4:
+		system("cls");
+		break;
+	}
+}
+
+//����Ա�޸Ĺ���
+void modify()
+{
+	int choice;
+	while(1)
+	{
+    	printf("###########################\n");
+     	printf("###    1.�޸Ļ���·   ###\n");
+    	printf("###    2.�޸Ļ�ʱ��   ###\n");
+    	printf("###    3.�޸Ļ�Ʊ��   ###\n");
+    	printf("###    4.�޸Ļ�Ʊ��   ###\n");
+    	printf("###    5.�˳��޸Ľ���   ###\n");
+    	printf("###########################\n");
+    	printf("����������ѡ��:");
+    	scanf("%d",&choice);
+    	switch(choice)
+		{
+    	case 1:
+    		xg_line();
+			printf("���������������..");    //��������
+		    getch();
+		    system("cls");
+	    	break;
+    	case 2:
+	    	xg_time();
+			printf("���������������..");    //��������
+		    getch();
+		    system("cls");
+	    	break;
+		case 3:
+			xg_Tprice();
+			printf("���������������..");    //��������
+		    getch();
+		    system("cls");
+			break;
+		case 4:
+			xg_Ttotal();
+			printf("���������������..");    //��������
+		    getch();
+		    system("cls");
+			break;
+		case 5:
+			break;
+		default :
+			printf("�������,������ѡ��!\n");
+		} 
+	    if(choice==5)
+		{
+			printf("���������������..");    //��������
+		    getch();
+		    system("cls");
+	    	break;
+		}
+	}
+}
+//�޸Ļ���·
+void xg_line()
+{
+	int select;
+	int exist=-1,i;
+	char station1[20],station2[20];
+	char traNum[20];
+	while(1)
+	{
+	    printf("��������Ҫ�޸ĵĻ𳵳���:");
+	    scanf("%s",traNum);
+		fflush(stdin);
+		for(i=0;i<N;i++)
+		{
+		    if(strcmp(train[i].traNum,traNum)==0)     //����ѭ����������Ҫ�޸ĵĳ���
+			{
+			    printf("**********************\n");
+			    printf("***  1.�޸���ʼվ  ***\n");
+			    printf("***  2.�޸��յ�վ  ***\n");
+			    printf("***  3.ȫ���޸�    ***\n");
+			    printf("**********************\n");
+			    printf("����������ѡ��:");
+				scanf("%d",&select);
+				switch(select)
+				{
+				case 1:                              //�޸���ʼվ
+					printf("��������ʼվ�޸ĵ�����:");
+					scanf("%s",station1);
+					strcpy(train[i].Sstation,station1);
+					printf("��ϲ,�޸ĳɹ�!\n");
+					break;
+				case 2:                              //�޸��յ�վ
+					printf("�������յ�վ�޸ĵ�����:");
+					scanf("%s",station1);
+					strcpy(train[i].Estation,station1);
+					printf("��ϲ,�޸ĳɹ�!\n");
+					break;
+				case 3:                               //ȫ���޸�
+					printf("��������ʼվ�޸ĵ�����:");
+					scanf("%s",station1);
+					fflush(stdin);
+					strcpy(train[i].Sstation,station1);
+					printf("�������յ�վ�޸ĵ�����:");
+					scanf("%s",station2);
+					strcpy(train[i].Estation,station2);
+					printf("��ϲ,�޸ĳɹ�!\n");
+					break;
+				default :
+					printf("�������!\n");
+					break;
+				}
+				exist=0;
+				break;
+			}
+		}
+		if(exist==0)
+		{
+			break;
+		}
+		else
+		{
+			printf("������ĳ���,��������������!\n");
+		}
+	}
+	trainsave();                           //���޸ĺ����Ϣ�����ļ���
+}
+//�޸Ļ�ʱ��
+void xg_time()
+{
+	int exist=-1,i;
+	char traNum[20];
+	char time1[20],time2[20];
+	while(1)
+	{
+		printf("��������Ҫ�޸ĵĳ���:");
+		scanf("%s",traNum);
+		fflush(stdin);
+		for(i=0;i<N;i++)
+		{
+			if(strcmp(train[i].traNum,traNum)==0)        //����ѭ����������Ҫ�޸ĵĳ���
+			{
+				printf("�������޸ĺ�ķ���ʱ��:");
+				scanf("%s",time1);
+				strcpy(train[i].Stime,time1);
+				fflush(stdin);
+				printf("�������޸ĺ�ĵ�վʱ��:");
+				scanf("%s",time2);
+				strcpy(train[i].Etime,time2);
+				printf("��ϲ,�޸ĳɹ�!\n");
+				exist=0;
+				break;
+			}
+		}
+		if(exist==0){
+			break;
+		}
+		else{
+			printf("������ĳ���,��������������!\n");
+		}
+	}
+	trainsave();                               //���޸ĺ����Ϣ�����ļ���
+}
+//�޸Ļ�Ʊ��
+void xg_Tprice()
+{
+	int select;
+	int exist=-1,i;
+	char traNum[20];
+	double price;
+	while(1)
+	{
+		printf("��������Ҫ�޸ĵĳ���:");
+		scanf("%s",traNum);
+		fflush(stdin);
+		for(i=0;i<N;i++)
+		{
+			if(strcmp(train[i].traNum,traNum)==0)        //����ѭ����������Ҫ�޸ĵĳ���
+			{
+				if(strcmp(train[i].tratype,"�տ�")==0)
+				{
+					printf("1.�޸�����Ʊ��\n");
+					printf("2.�޸�Ӳ��Ʊ��\n");
+					printf("3.�޸�����Ʊ��\n");
+					printf("����������ѡ��:");
+					scanf("%d",&select);
+					fflush(stdin);
+					switch(select)
+					{
+					case 1:                            //�޸�����Ʊ��
+						printf("����������Ҫ�޸ĵ�Ʊ��:");
+						scanf("%lf",&price);
+                        train[i].bedprice=price;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break;
+					case 2:                            //�޸�Ӳ��Ʊ��
+						printf("������Ӳ��Ҫ�޸ĵ�Ʊ��:");
+						scanf("%lf",&price);
+                        train[i].price=price;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break;
+					case 3:                            //�޸�����Ʊ��
+						printf("����������Ҫ�޸ĵ�Ʊ��:");
+						scanf("%lf",&price);
+                        train[i].standprice=price;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break;
+					}
+				}
+				if(strcmp(train[i].tratype,"����")==0)   
+				{
+					printf("1.�޸�������Ʊ��\n");
+					printf("2.�޸�һ����Ʊ��\n");
+					printf("3.�޸Ķ�����Ʊ��\n");
+					printf("����������ѡ��:");
+					scanf("%d",&select);
+					fflush(stdin);
+					switch(select)
+					{
+					case 1:                           //�޸�������Ʊ��
+						printf("������������Ҫ�޸ĵ�Ʊ��:");
+						scanf("%lf",&price);
+                        train[i].Bprice=price;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break;
+					case 2:                           //�޸�һ����Ʊ��
+						printf("������һ����Ҫ�޸ĵ�Ʊ��:");
+						scanf("%lf",&price);
+                        train[i].Fprice=price;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break;
+					case 3:                           //�޸�һ����Ʊ��
+						printf("�������������Ҫ�޸ĵ�Ʊ��:");
+						scanf("%lf",&price);
+                        train[i].Sprice=price;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break;
+					}
+				}
+				exist=0;
+				break;
+			}
+		}
+		if(exist==0)
+		{
+			break;
+		}
+		else
+		{
+			printf("������ĳ�������,����������!\n");
+		}
+	}
+	trainsave();                              //���޸ĺ����Ϣ�����ļ���
+}
+//�޸Ļ�Ʊ��
+void xg_Ttotal()
+{
+	int select;
+	int exist=-1,i;
+	char traNum[20];
+	int total;
+	while(1)
+	{
+		printf("��������Ҫ�޸ĵĳ���:");
+		scanf("%s",traNum);
+		fflush(stdin);
+		for(i=0;i<N;i++)
+		{
+			if(strcmp(train[i].traNum,traNum)==0)          //����ѭ����������Ҫ�޸ĵĳ���
+			{
+				if(strcmp(train[i].tratype,"�տ�")==0)
+				{
+					printf("1.�޸�����Ʊ��\n");
+					printf("2.�޸�Ӳ��Ʊ��\n");
+					printf("3.�޸�����Ʊ��\n");
+					printf("����������ѡ��:");
+					scanf("%d",&select);
+					fflush(stdin);
+					switch(select)
+					{
+					case 1:                          //�޸�����Ʊ��
+						printf("����������Ҫ�޸ĵ�Ʊ��:");
+						scanf("%d",&total);
+                        train[i].bedtotal=total;
+						train[i].bedremain=total;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break; 
+					case 2:                          //�޸�Ӳ��Ʊ��
+						printf("������Ӳ��Ҫ�޸ĵ�Ʊ��:");
+						scanf("%d",&total);
+                        train[i].total=total;
+						train[i].remain=total;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break;
+					case 3:                           //�޸�����Ʊ��
+						printf("����������Ҫ�޸ĵ�Ʊ��:");
+						scanf("%d",&total);
+                        train[i].standtotal=total;
+						train[i].standremain=total;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break;
+					}
+				}
+				if(strcmp(train[i].tratype,"����")==0)       
+				{
+					printf("1.�޸�������Ʊ��\n");
+					printf("2.�޸�һ����Ʊ��\n");
+					printf("3.�޸Ķ�����Ʊ��\n");
+					printf("����������ѡ��:");
+					scanf("%d",&select);
+					fflush(stdin);
+					switch(select)
+					{
+					case 1:                          //�޸�����Ʊ��                             
+						printf("������������Ҫ�޸ĵ�Ʊ��:");
+						scanf("%d",&total);
+                        train[i].Btotal=total;
+						train[i].Bremain=total;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break;
+					case 2:                          //�޸�Ӳ��Ʊ��
+						printf("������һ����Ҫ�޸ĵ�Ʊ��:");
+						scanf("%d",&total);
+                        train[i].Ftotal=total;
+						train[i].Fremain=total;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break;
+					case 3:                           //�޸�����Ʊ��
+						printf("�������������Ҫ�޸ĵ�Ʊ��:");
+						scanf("%d",&total);
+                        train[i].Stotal=total;
+						train[i].Sremain=total;
+						printf("��ϲ,�޸ĳɹ�!\n");
+						break;
+					}
+				}
+				exist=0;
+				break;
+			}
+		}
+		if(exist==0)
+		{
+			break;
+		}
+		else
+		{
+			printf("������ĳ�������,����������!\n");
+		}
+	}
+	trainsave();                                //���޸ĺ����Ϣ�����ļ���
+}
+
+//����Աɾ������·����
+void train_delete()
+{
+	int exist=-1,i,k;
+	char traNum[20];
+	while(1)
+	{
+	    printf("��������Ҫɾ���ĳ���:");
+	    scanf("%s",traNum);
+	    fflush(stdin);
+	    for(i=0;i<N;i++)                           //��
+		{
+		    if(strcmp(train[i].traNum,traNum)==0)
+			{
+			    k=i;
+			    break;
+			}
+		}                                          //�ҵ�Ҫɾ���ĳ��ε�λ�á�
+        if(i<N){
+			break;
+		}
+		else{
+			printf("������ĳ��δ���,����������!\n");
+		}
+	}
+	for(i=k;i<N;i++)
+	{
+		if(strcmp(train[i+1].tratype,"�տ�")==0)                 //��
+		{
+            strcpy(train[i].traNum,train[i+1].traNum);
+        	strcpy(train[i].tratype,train[i+1].tratype);
+            strcpy(train[i].Sstation,train[i+1].Sstation);
+        	strcpy(train[i].Estation,train[i+1].Estation);
+         	strcpy(train[i].Stime,train[i+1].Stime);
+            strcpy(train[i].Etime,train[i+1].Etime);
+            train[i].bedtotal=train[i+1].bedtotal;
+        	train[i].bedremain=train[i+1].bedremain;
+        	train[i].bedprice=train[i+1].bedprice;
+        	train[i].total=train[i+1].total;
+        	train[i].remain=train[i+1].remain;
+        	train[i].price=train[i+1].price;
+        	train[i].standtotal=train[i+1].standtotal;
+        	train[i].standremain=train[i+1].standremain;
+        	train[i].standprice=train[i+1].standprice;
+		}                                                      //����һ�˳�����Ϣ���Ƹ�ǰһ��
+		else
+		{
+			strcpy(train[i].traNum,train[i+1].traNum);
+        	strcpy(train[i].tratype,train[i+1].tratype);
+            strcpy(train[i].Sstation,train[i+1].Sstation);
+        	strcpy(train[i].Estation,train[i+1].Estation);
+         	strcpy(train[i].Stime,train[i+1].Stime);
+            strcpy(train[i].Etime,train[i+1].Etime);
+            train[i].Btotal=train[i+1].Btotal;
+        	train[i].Bremain=train[i+1].Bremain;
+        	train[i].Bprice=train[i+1].Bprice;
+        	train[i].Ftotal=train[i+1].Ftotal;
+        	train[i].Fremain=train[i+1].Fremain;
+        	train[i].Fprice=train[i+1].Fprice;
+        	train[i].Stotal=train[i+1].Stotal;
+        	train[i].Sremain=train[i+1].Sremain;
+        	train[i].Sprice=train[i+1].Sprice;
+		}
+	}
+	printf("��ϲ,ɾ���ɹ�!\n");
+	trainsave();                              //�������ݴ����ļ�
+}
+//����Ա���ӻ���·����
+void train_add()
+{
+	int select;
+	int i,j,n;
+	int total1,total2,total3;
+	j=count();       //���㵱ǰ���ж����˻�
+	printf("��������Ҫ���ӵĻ�����:");
+	scanf("%d",&n);
+	for(i=0;i<n;i++)
+	{
+    	printf("��������Ҫ���ӵĵ�%d�˻�����:\n",i+1);
+		printf("1.�տ�\n");
+		printf("2.����\n");
+		printf("��ѡ����Ҫ���ӵĻ�����");
+		scanf("%d",&select);
+	    printf("������𳵳���(����:K101):");
+    	scanf("%s",train[j+i].traNum);
+    	printf("��������ʼվ:");
+    	scanf("%s",train[j+i].Sstation);
+    	printf("�������յ�վ:");
+    	scanf("%s",train[j+i].Estation);
+    	printf("�����뷢��ʱ��(����:2:00):");
+    	scanf("%s",train[j+i].Stime);
+    	printf("�����뵽վʱ��:");
+    	scanf("%s",train[j+i].Etime);
+		switch(select)
+		{
+		case 1:
+    	    strcpy(train[j+i].tratype,"�տ�");
+	    	printf("������������Ʊ��:");
+	    	scanf("%d",&total1);
+	    	train[j+i].bedremain=train[j+i].bedtotal=total1;
+	    	printf("����������Ʊ��:");
+	    	scanf("%lf",&train[j+i].bedprice);
+		    printf("������Ӳ����Ʊ��:");
+	    	scanf("%d",&total2);
+        	train[j+i].remain=train[j+i].total=total2;
+	    	printf("������Ӳ��Ʊ��:");
+	    	scanf("%lf",&train[j+i].price);
+	    	printf("������������Ʊ��:");
+	    	scanf("%d",&total3);
+	    	train[j+i].standremain=train[j+i].standtotal=total3;
+	    	printf("����������Ʊ��:");
+	    	scanf("%lf",&train[j+i].standprice);
+			break;
+		case 2:
+    	    strcpy(train[j+i].tratype,"����");
+	    	printf("��������������Ʊ��:");
+	    	scanf("%d",&total1);
+	    	train[j+i].Bremain=train[j+i].Btotal=total1;
+	    	printf("������������Ʊ��:");
+	    	scanf("%lf",&train[j+i].Bprice);
+	    	printf("������һ������Ʊ��:");
+	    	scanf("%d",&total2);
+	    	train[j+i].Fremain=train[j+i].Ftotal=total2;
+	    	printf("������һ����Ʊ��:");
+	    	scanf("%lf",&train[j+i].Fprice);
+	    	printf("�������������Ʊ��:");
+	        scanf("%d",&total3);
+	    	train[j+i].Sremain=train[j+i].Stotal=total3;
+	    	printf("�����������Ʊ��:");
+	    	scanf("%lf",&train[j+i].Sprice);
+			break;
+		}
+		printf("��ϲ,��%d�˻���·���ӳɹ�!\n",i+1);
+	}
+	trainsave();                            //�������ݴ����ļ�
+}
+//����·���ݳ�ʼ��
+void traindata() 
+{
+	strcpy(train[0].traNum,"K101");
+	strcpy(train[0].tratype,"�տ�");
+    strcpy(train[0].Sstation,"nc");
+	strcpy(train[0].Estation,"yy");
+	strcpy(train[0].Stime,"6:30");
+	strcpy(train[0].Etime,"9:30");
+    train[0].bedtotal=200;
+	train[0].bedremain=200;
+	train[0].bedprice=88;
+	train[0].total=400;
+	train[0].remain=400;
+	train[0].price=28;
+	train[0].standtotal=200;
+	train[0].standremain=200;
+	train[0].standprice=28;
+	strcpy(train[1].traNum,"G248");
+	strcpy(train[1].tratype,"����");
+    strcpy(train[1].Sstation,"nc");
+	strcpy(train[1].Estation,"yy");
+	strcpy(train[1].Stime,"7:30");
+	strcpy(train[1].Etime,"8:30");
+    train[1].Btotal=100;
+	train[1].Bremain=100;
+	train[1].Bprice=198;
+	train[1].Ftotal=200;
+	train[1].Fremain=200;
+	train[1].Fprice=135;
+	train[1].Stotal=400;
+	train[1].Sremain=400;
+	train[1].Sprice=82;
+	strcpy(train[2].traNum,"G456");
+	strcpy(train[2].tratype,"����");
+    strcpy(train[2].Sstation,"nc");
+	strcpy(train[2].Estation,"yy");
+	strcpy(train[2].Stime,"10:30");
+	strcpy(train[2].Etime,"11:30");
+    train[2].Btotal=100;
+	train[2].Bremain=100;
+	train[2].Bprice=198;
+	train[2].Ftotal=200;
+	train[2].Fremain=200;
+	train[2].Fprice=135;
+	train[2].Stotal=300;
+	train[2].Sremain=300;
+	train[2].Sprice=82;
+	trainsave();
+}
+// ����·����
+
+void trainsave()
+{
+	FILE *fp;
+	int i;
+	fp=fopen("D:\\traindata","w+");
+	for(i=0;i<N;i++)
+	{
+		fwrite(&train[i],sizeof(TICKET),1,fp);
+		fputc('\n',fp);
+	}
+	fclose(fp);
+}
+
+//���������
+int count()
+{
+	int n=0,i;
+	FILE *fp;
+	fp=fopen("D:\\traindata","rb");
+	for(i=0;i<N;i++)
+	{
+		if(strlen(train[i].traNum)>0)
+			n++;
+	}
+	return n;
+	fclose(fp);
+	
+}
+
+//�����ͻ�����
+void userlist()
+{
+	head=(USER*)malloc(sizeof(USER));
+	if(head==NULL)
+	{
+		printf("�����ڴ�ʧ��!\n");
+	}
+	else
+	{
+		memset(head,'\0',sizeof(USER));
+		head->next=NULL;
+	}
+}
+
+//�û�ע�����
+void zhuce()
+{
+	int select;
+	char pass[20];
+	USER newUser;
+	printf("      ��ӭ�����û�����        \n");
+	printf("      1.ע���˺�              \n");
+	printf("      2.��¼�˺�              \n");
+	printf("      3.�˳��ý���            \n");
+	printf("����������ѡ��:\n");
+	scanf("%d",&select);
+	switch(select)
+	{
+	case 1:
+		do
+		{
+		    printf("����������:");
+            scanf("%s",newUser.name);
+        	printf("����������֤����:");
+            scanf("%s",newUser.userID);
+        	printf("�������ֻ�����(����Ϊ11λ��):");
+            scanf("%s",newUser.phoneNum);
+         	printf("������ְҵ(ѧ��/����):");
+            scanf("%s",newUser.type);
+	    	printf("����������:");
+	    	scanf("%s",newUser.password);
+	    	printf("���ٴ���������:");
+	    	scanf("%s",pass);
+            if(strcmp(newUser.password,pass)==0)
+			{
+		        userZC(newUser);
+				break;
+			}
+		    else
+			{
+			    printf("�������벻һ��,ע��ʧ��!\n");
+				system("cls");
+			}
+		}while(1);
+	   	break;
+	case 2:
+		userRe();
+		break;
+	case 3:
+		break;
+	}
+}
+
+//��ӡ�ͻ�����
+void input(USER *tmpUser)
+{
+	FILE *fp;
+	fp=fopen("D:\\userdata.txt","a+");
+	printf("����:");
+	printf("%s\n",tmpUser->name);
+	printf("����֤��:");
+	printf("%s\n",tmpUser->userID);
+	printf("�绰����:");
+	printf("%s\n",tmpUser->phoneNum);
+	printf("����/ѧ��:");
+	printf("%s\n",tmpUser->type);
+	fprintf(fp,"����:");
+	fprintf(fp,"%s\n",tmpUser->name);
+	fprintf(fp,"����֤��:");
+	fprintf(fp,"%s\n",tmpUser->userID);
+	fprintf(fp,"�绰����:");
+	fprintf(fp,"%s\n",tmpUser->phoneNum);
+	fprintf(fp,"����/ѧ��:");
+	fprintf(fp,"%s\n",tmpUser->type);
+	fclose(fp);
+}
+
+//�û�ע�ắ��
+void userZC(USER newUser)
+{
+	//�����½ڵ�   //��ͷָ�����ǰ�û�ָ��
+    USER *tmpUser,*currentUser=head;
+	tmpUser=(USER*)malloc(sizeof(USER));  //ϵͳ��������ڴ�
+	if(tmpUser==NULL)
+	{
+		printf("out of memory");
+	}
+	else
+	{
+		strcpy(tmpUser->name,newUser.name);
+		strcpy(tmpUser->userID,newUser.userID);
+		strcpy(tmpUser->phoneNum,newUser.phoneNum);
+		strcpy(tmpUser->type,newUser.type);
+		strcpy(tmpUser->password,newUser.password);
+		tmpUser->next=NULL;
+	}
+	while(currentUser->next!=NULL)
+	{
+		currentUser=currentUser->next;
+	}
+	currentUser->next=tmpUser;
+	system("cls");
+	if(strlen(newUser.userID)<=18 && strlen(newUser.phoneNum)==11)
+	{
+		printf("��ϲ,ע��ɹ�!\n");
+		printf("������Ϣ����\n");
+		input(tmpUser);
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_INTENSITY|FOREGROUND_RED);
+		printf("���¼\n");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_INTENSITY|FOREGROUND_GREEN|FOREGROUND_RED|FOREGROUND_BLUE);
+		userRe();
+	}
+	else
+	{
+		printf("��Ǹ,ע��ʧ��!\n");
+		printf("������ע��!\n");
+		zhuce();
+	}
+}
+
+//�û���¼
+void userRe()
+{
+	int n=3;
+	char key[20];
+	char phoneNum[20];
+	int flag=0;
+	USER*tmpUser=head->next;
+	do
+	{
+		while(tmpUser!=NULL){
+		printf("������ע����ֻ�����:");
+		scanf("%s",phoneNum);
+		if(!strcmp(phoneNum,tmpUser->phoneNum))
+		{
+			printf("����������:");
+			scanf("%s",key);
+			if(!strcmp(key,tmpUser->password))
+			{
+
+			    printf("��ϲ,��¼�ɹ�!\n");
+			    flag=1;
+			}
+			break;
+		}
+		tmpUser=tmpUser->next;
+		}
+		if(flag==1)
+		{
+			break;
+		}
+		else
+		{
+			printf("��������,����������!\n");
+			n--;
+		}
+	}while(n>0);
+	if(flag==0)
+	{
+		printf("��¼ʧ��!\n");
+	}
+	if(flag==1)
+	{
+		system("cls");
+		printf("��ϲ,��¼�ɹ�!\n");
+		usermanage();
+	}
+
+}
+
+//�û���������
+void usermanage()
+{
+	int select;
+	char zhan1[20],zhan2[20];
+	while(1)
+			{
+                usermenu();
+				scanf("%d",&select);
+				switch(select)
+				{
+				case 1:
+					while(1)
+					{
+					    printf("��������ʼվ:");
+			            scanf("%s",zhan1);
+						if(checkSstation(zhan1)==0)
+						{
+							break;
+						}
+					}
+					while(1)
+					{
+					    printf("�������յ�վ:");
+			            scanf("%s",zhan2);
+						if(checkEstation(zhan2)==0)
+						{
+							trainsearch(zhan1,zhan2);
+							break;
+						}
+					}		
+			        
+			        break;
+				case 2:
+					system("cls");
+				    buy();
+					break;
+				case 3:
+					refund();
+					printf("���������������..");    //��������
+		            getch();
+		            system("cls");
+					break;
+				case 4:
+					Tmedify();
+					printf("���������������..");    //��������
+		            getch();
+		            system("cls");
+					break;
+				case 5:
+					show_usermessage();
+					printf("���������������..");    //��������
+		            getch();
+		            system("cls");
+					break;
+				case 6:
+					break;
+				}
+				if(select==6)
+					break;
+			}
+}
+
+//�ж���ʼվ�Ƿ����
+int checkSstation(char *Sstation)
+{
+	int i;
+    int exist=-1;
+    for(i=0;i<N;i++)
+	{
+		if(strcmp(train[i].Sstation,Sstation)==0)
+		{
+			exist=0;
+			break;
+		}
+	}
+	if(exist==-1)
+	{
+		printf("��Ǹ,û�и�վ,������������ʼվ!\n");
+	}
+	return exist;
+}
+
+//�ж��յ�վ�Ƿ����
+int checkEstation(char *Sstation)
+{
+	int i;
+    int exist=-1;
+    for(i=0;i<N;i++)
+	{
+		if(strcmp(train[i].Estation,Sstation)==0)
+		{
+			exist=0;
+			break;
+		}
+	}
+	if(exist==-1)
+	{
+		printf("��Ǹ,û�и�վ,�����������յ�վ!\n");
+	}
+	return exist;
+}
+
+//�û���ѯ����
+void trainsearch(char *station1,char *station2)   
+{
+	
+	int i;
+	int exist=-1;
+	for(i=0;i<N;i++)
+	{
+ 		if(strcmp(train[i].Sstation,station1)==0&&strcmp(train[i].Estation,station2)==0)
+		{
+			if(strcmp(train[i].tratype,"�տ�")==0)
+			{
+				printf("|--------|--------------|-----------|-----------|-----------|\n");
+	            printf("|������|��ʼվ--�յ�վ|����Ʊ|Ʊ��|Ӳ��Ʊ|Ʊ��|����Ʊ|Ʊ��|\n");
+				printf("|%-8s|%-6s--%-6s|%-6d|%-4.f|%-6d|%-4.f|%-6d|%-4.f\n",train[i].tratype,train[i].Sstation,
+				train[i].Estation,train[i].bedtotal,train[i].bedprice,train[i].total,train[i].price,train[i].standtotal,train[i].standprice);
+				printf("|����|����ʱ��--��վʱ��|***��Ʊ��**|**��Ʊ��***|***��Ʊ��**|\n");
+				printf("|%-4s|%-8s--%-8s|**%-6d**|**%-6d**|**%-6d**|\n",train[i].traNum,train[i].Stime,
+				train[i].Etime,train[i].bedremain,train[i].remain,train[i].standremain);
+				printf("|----|------------------|-----------|-----------|-----------|\n");
+			}
+			if(strcmp(train[i].tratype,"����")==0)
+			{
+				printf("|--------|--------------|-----------|-----------|-----------|\n");
+	            printf("|������|��ʼվ--�յ�վ|������|Ʊ��|һ����|Ʊ��|������|Ʊ��|\n");
+				printf("|%-8s|%-6s--%-6s|%-6d|%-4.f|%-6d|%-4.f|%-6d|%-4.f\n",train[i].tratype,train[i].Sstation,
+				train[i].Estation,train[i].Btotal,train[i].Bprice,train[i].Ftotal,train[i].Fprice,train[i].Stotal,train[i].Sprice);
+				printf("|����|����ʱ��--��վʱ��|***��Ʊ��**|**��Ʊ��***|***��Ʊ��**|\n");
+				printf("|%-4s|%-8s--%-8s|**%-6d**|**%-6d**|**%-6d**|\n",train[i].traNum,train[i].Stime,
+				train[i].Etime,train[i].Bremain,train[i].Fremain,train[i].Sremain);
+				printf("|----|------------------|-----------|-----------|-----------|\n");
+			}
+			exist=0;
+		}
+	}
+	if(exist==-1)
+	{
+		printf("��Ǹ!û�д�%s��%s���г�",station1,station2);
+	}
+}
+
+//�û������Ʊ
+void buy()
+{
+	char zhan1[20],zhan2[20];
+	USER*tmpUser=head->next;    //���ڱ�������
+	while(1)                            //��
+	{
+	    printf("��������Ҫ��Ʊ����ʼվ:");
+        scanf("%s",zhan1);
+		if(checkSstation(zhan1)==0)
+		{
+			while(1)
+			{
+	            printf("��������Ҫ��Ʊ���յ�վ:");
+                scanf("%s",zhan2);
+	        	if(checkEstation(zhan2)==0)
+				{
+		        	trainsearch(zhan1,zhan2);
+		            buymanage();
+					break;
+				}
+			}
+			break;
+		}
+		
+	}                                  //��ѯ����·��
+
+}
+
+//�û���Ʊ����
+void buymanage()
+{
+	int select,i=0;
+	int exist=-1;    //-1�����ڸó���0���ڸó���
+	char ch;
+	char trainNum[20];
+	char name[20];
+	double price1,price2;
+	USER*tmpUser=head->next;    //���ڱ�������
+	printf("��������Ҫ����ĳ���:");   //���𳵳��ι�Ʊ
+	scanf("%s",trainNum);
+	while(i<N)
+	{
+		if(strcmp(train[i].traNum,trainNum)==0)    //��������
+		{
+			exist=0;        //˵���ó��δ���
+			if(strcmp(train[i].tratype,"�տ�")==0)
+			{
+				printf("1.����\n");
+				printf("2.Ӳ��\n");
+				printf("3.����\n");
+				printf("��ѡ����Ҫ�����Ʊ��:");
+				scanf("%d",&select);
+				switch(select)
+				{
+				case 1:           //��������
+					train[i].bedremain=train[i].bedremain-1;
+					if(train[i].bedremain==0)
+					{
+						printf("��Ǹ,����Ʊȫ������!\n");
+						break;
+					}
+					printf("��������������:");
+					scanf("%s",name);
+                    printf("��ѡ���Ƿ���ѧ��Ʊ\n");
+					fflush(stdin);
+                    printf("������Y/N\n");
+					scanf("%c",&ch);
+					switch(ch)
+					{
+					case 'Y':        //ѡ����ѧ��Ʊ
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)    //������ѯ
+							{
+			                    if(strcmp(tmpUser->type,"ѧ��")==0)
+								{
+									price1=train[i].bedprice*0.5;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"����");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�!��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+								}
+								else
+								{
+									printf("��Ǹ,������ѧ��!\n");
+									break;
+								}
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					case 'N':            //ȫ�۹���
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)    //������ѯ
+							{
+									price1=train[i].bedprice;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"����");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�,��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					default:
+						printf("�������!\n");
+					}
+					break;
+				case 2:        //����Ӳ��Ʊ
+					train[i].remain=train[i].remain-1;
+					if(train[i].remain==0)
+					{
+						printf("��Ǹ,Ӳ��Ʊȫ������!\n");
+						break;
+					}
+					printf("��������������:");
+					scanf("%s",name);
+                    printf("��ѡ���Ƿ���ѧ��Ʊ\n");
+					fflush(stdin);
+                    printf("������Y/N\n");
+					scanf("%c",&ch);
+					switch(ch)
+					{
+					case 'Y':                   //ѡ����ѧ��Ʊ
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)     //������ѯ
+							{
+			                    if(strcmp(tmpUser->type,"ѧ��")==0)
+								{
+									price1=train[i].price*0.5;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"Ӳ��");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�!��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+								}
+								else
+								{
+									printf("��Ǹ,������ѧ��!\n");
+									break;
+								}
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					case 'N':                 //ȫ�۹���
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)     //������ѯ
+							{
+									price1=train[i].price;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"Ӳ��");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�,��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					default:
+						printf("�������!\n");
+					}
+					break;
+				case 3:                //����վƱ
+					train[i].standremain=train[i].standremain-1;
+					if(train[i].standremain==0)
+					{
+						printf("��Ǹ,վƱȫ������!\n");
+						break;
+					}
+					printf("��������������:");
+					scanf("%s",name);
+                    printf("��ѡ���Ƿ���ѧ��Ʊ\n");
+					fflush(stdin);
+                    printf("������Y/N\n");
+					scanf("%c",&ch);
+					switch(ch)
+					{
+					case 'Y':                //ѡ����ѧ��Ʊ
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)
+							{
+			                    if(strcmp(tmpUser->type,"ѧ��")==0)       //������ѯ
+								{
+									price1=train[i].standprice*0.5;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"����");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�!��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+								}
+								else
+								{
+									printf("��Ǹ,������ѧ��!\n");
+									break;
+								}
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					case 'N':                //ȫ�۹����Ʊ
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)     //������ѯ
+							{
+									price1=train[i].standprice;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"����");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�,��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					default:
+						printf("�������!\n");
+					}
+					break;
+				}
+				break;
+			}
+			if(strcmp(train[i].tratype,"����")==0)
+			{
+				printf("1.������\n");
+				printf("2.һ����\n");
+				printf("3.������\n");
+				printf("��ѡ����Ҫ�����Ʊ��:");
+				scanf("%d",&select);
+				switch(select)
+				{
+				case 1:
+					train[i].Bremain=train[i].Bremain-1;
+					if(train[i].Bremain==0)
+					{
+						printf("��Ǹ,��������Ʊȫ������!\n");
+						break;
+					}
+					printf("��������������:");
+					scanf("%s",name);
+                    printf("��ѡ���Ƿ���ѧ��Ʊ\n");
+					fflush(stdin);
+                    printf("������Y/N\n");
+					scanf("%c",&ch);
+					switch(ch)
+					{
+					case 'Y':                 //ѡ����ѧ��Ʊ
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)    //������ѯ
+							{
+			                    if(strcmp(tmpUser->type,"ѧ��")==0)
+								{
+									price1=train[i].Bprice*0.75;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"������");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�!��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+								}
+								else
+								{
+									printf("��Ǹ,������ѧ��!\n");
+									break;
+								}
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					case 'N':               // ȫ�۹����Ʊ
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)    //������ѯ
+							{
+									price1=train[i].Bprice;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"������");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�,��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					default:
+						printf("�������!\n");
+					}
+					break;
+				case 2:              //����һ������Ʊ
+					train[i].Fremain=train[i].Fremain-1;
+					if(train[i].Fremain==0)
+					{
+						printf("��Ǹ,һ������Ʊȫ������!\n");
+						break;
+					}
+					printf("��������������:");
+					scanf("%s",name);
+                    printf("��ѡ���Ƿ���ѧ��Ʊ\n");
+					fflush(stdin);
+                    printf("������Y/N\n");
+					scanf("%c",&ch);
+					switch(ch)
+					{
+					case 'Y':                     //ѡ����ѧ��Ʊ
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)      //������ѯ
+							{
+			                    if(strcmp(tmpUser->type,"ѧ��")==0)
+								{
+									price1=train[i].Fprice*0.75;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"һ����");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�!��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+								}
+								else
+								{
+									printf("��Ǹ,������ѧ��!\n");
+									break;
+								}
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					case 'N':                   //ȫ�۹����Ʊ
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)     //������ѯ
+							{
+									price1=train[i].Fprice;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"һ����");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�,��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					default:
+						printf("�������!\n");
+					}
+					break;
+				case 3:              //�����������Ʊ
+					train[i].Sremain=train[i].Sremain-1;
+					if(train[i].Sremain==0)
+					{
+						printf("��Ǹ,��������Ʊȫ������!\n");
+						break;
+					}
+					printf("��������������:");
+					scanf("%s",name);
+                    printf("��ѡ���Ƿ���ѧ��Ʊ\n");
+					fflush(stdin);
+                    printf("������Y/N\n");
+					scanf("%c",&ch);
+					switch(ch)
+					{
+					case 'Y':               //ѡ����ѧ��Ʊ
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)     //������ѯ
+							{
+			                    if(strcmp(tmpUser->type,"ѧ��")==0)
+								{
+									price1=train[i].Sprice*0.75;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"������");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�!��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+								}
+								else
+								{
+									printf("��Ǹ,������ѧ��!\n");
+									break;
+								}
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					case 'N':               //ȫ�۹����Ʊ
+						while(tmpUser!=NULL)
+						{
+							if(name!=NULL&&strcmp(tmpUser->name,name)==0)    //������ѯ
+							{
+									price1=train[i].Sprice;
+									printf("��֧��%.2lfԪ\n",price1);
+									scanf("%lf",&price2);
+									tmpUser->price=price2;
+									strcpy(tmpUser->traNum,train[i].traNum);
+									strcpy(tmpUser->tratype,train[i].tratype);
+									strcpy(tmpUser->Sstation,train[i].Sstation);
+									strcpy(tmpUser->Estation,train[i].Estation);
+									strcpy(tmpUser->Stime,train[i].Stime);
+									strcpy(tmpUser->seatType,"������");
+									tmpUser->status=1;
+									printf("��Ʊ�ɹ�,��Ϣ����\n");
+									headshow();
+									show(tmpUser);
+									break;
+							}
+							else
+							{
+								printf("��Ǹ,���û�������!\n");
+								printf("����������!\n");
+								break;
+							}
+							tmpUser=tmpUser->next;
+						}
+                        break;
+					default:
+						printf("�������!\n");
+					}
+					break;
+				}
+				break;
+			}
+		}
+		else
+		{
+			i++;
+		}
+	}
+	if(exist==-1)
+	{
+		printf("��Ǹ,û���ҵ��ó��εĻ�!\n");
+	}
+}
+//��Ʊ��ͷ
+void headshow()
+{
+	printf("|----|--------|--------|--------------|--------|--------|------|\n");
+	printf("|����|�𳵳���|������|��ʼվ--�յ�վ|����ʱ��|��λ����|Ʊ��  |\n");
+	printf("|--------------------------------------------------------------|\n");
+}
+
+//��ӡ��Ʊ����
+void show(USER*tmpUser)
+{
+	FILE *fp;
+	fp=fopen("D:\\userTicketdata.txt","a+");
+	printf("|%-4s|%-8s|%-8s|%-6s--%-6s|%-8s|%-8s|%-4.2lf|\n",
+	tmpUser->name,tmpUser->traNum,tmpUser->tratype,tmpUser->Sstation,tmpUser->Estation,tmpUser->Stime,tmpUser->seatType,tmpUser->price);
+	printf("|----|--------|--------|--------------|--------|--------|------|\n");
+	fprintf(fp,"|%-4s|%-8s|%-8s|%-6s--%-6s|%-8s|%-4.2lf|\n",
+	tmpUser->name,tmpUser->traNum,tmpUser->tratype,tmpUser->Sstation,tmpUser->Estation,tmpUser->Stime,tmpUser->seatType,tmpUser->price);
+	fclose(fp);
+}
+//�û���Ʊ
+void refund()
+{
+	int i,exist=-1;
+	char traNum[20];
+	USER *tmpUser=head->next;
+	printf("��������Ҫ��Ʊ�ĳ���:");
+	scanf("%s",traNum);
+    while(tmpUser!=NULL)
+	{
+		if(strcmp(tmpUser->traNum,traNum)==0)
+		{
+			tmpUser->status=0;
+			printf("������Ʊ�ɹ�!\n");
+			exist=0;
+			for(i=0;i<N;i++)
+			{
+		        if(strcmp(train[i].traNum,traNum)==0)
+				{
+					if(strcmp(tmpUser->seatType,"����")==0){
+			            train[i].bedremain=train[i].bedremain+1;
+						break;
+					}
+					else if(strcmp(tmpUser->seatType,"Ӳ��")==0){
+			            train[i].remain=train[i].remain+1;
+						break;
+					}
+					else if(strcmp(tmpUser->seatType,"����")==0){
+	        		    train[i].standremain=train[i].standremain+1;
+						break;
+					}
+					else if(strcmp(tmpUser->seatType,"������")==0){
+        			    train[i].Bremain=train[i].Bremain+1;
+						break;
+					}
+					else if(strcmp(tmpUser->seatType,"һ����")==0){
+	        		    train[i].Fremain=train[i].Fremain+1;
+						break;
+					}
+					else if(strcmp(tmpUser->seatType,"������")==0){
+	        		    train[i].Sremain=train[i].Sremain+1;
+	        		    break;
+					}
+				}
+			}
+			break;
+		}
+		tmpUser=tmpUser->next;
+	}
+	if(exist==-1)
+	{
+		printf("��Ǹ,δ�ҵ��ó���!\n");
+		printf("����������!\n");
+		refund();
+	}
+	
+}
+//�û���ǩ
+void Tmedify()
+{
+	int i,exist=-1;
+	double price1,price2,price3;
+	char traNum1[20],traNum2[20];
+	int select;
+	USER *tmpUser=head->next;
+	traindata();
+	printf("��������ԭ������ĳ���:");
+	scanf("%s",traNum1);
+	while(tmpUser!=NULL)
+	{
+		if(strcmp(tmpUser->traNum,traNum1)==0)
+		{
+			if(tmpUser->status=1)
+			{
+			price1=tmpUser->price;                      //��ȡԭ���ε�Ʊ�ۡ�
+			while(1)
+			{
+			    printf("��������Ҫ��ǩ�ĳ���:");
+			    scanf("%s",traNum2);
+				for(i=0;i<N;i++)
+				{
+				    if(strcmp(train[i].traNum,traNum2)==0)
+					{
+						exist=0;
+						if(strcmp(train[i].tratype,"�տ�")==0)
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_INTENSITY|FOREGROUND_RED);
+							printf("��Ҫ��ǩ�ĳ�����Ϣ����:\n");
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_INTENSITY|FOREGROUND_GREEN|FOREGROUND_RED|FOREGROUND_BLUE);
+			             	printf("|--------|--------------|-----------|-----------|-----------|\n");
+	                        printf("|������|��ʼվ--�յ�վ|����Ʊ|Ʊ��|Ӳ��Ʊ|Ʊ��|����Ʊ|Ʊ��|\n");
+			            	printf("|%-8s|%-6s--%-6s|%-6d|%-4.f|%-6d|%-4.f|%-6d|%-4.f\n",train[i].tratype,train[i].Sstation,
+		            		train[i].Estation,train[i].bedtotal,train[i].bedprice,train[i].total,train[i].price,train[i].standtotal,train[i].standprice);
+			             	printf("|����|����ʱ��--��վʱ��|***��Ʊ��**|**��Ʊ��***|***��Ʊ��**|\n");
+			            	printf("|%-4s|%-8s--%-8s|**%-6d**|**%-6d**|**%-6d**|\n",train[i].traNum,train[i].Stime,
+			            	train[i].Etime,train[i].bedremain,train[i].remain,train[i].standremain);
+			             	printf("|----|------------------|-----------|-----------|-----------|\n");
+							printf("��ѡ����Ҫ����ĸ�ǩ�����λ����\n");
+							printf("1.����\n2.Ӳ��\n3.����\n");
+							scanf("%d",&select);
+							switch(select)
+							{                       //��
+							case 1:              
+								price2=train[i].bedprice;
+							    break;
+							case 2:
+								price2=train[i].price;
+							    break;
+							case 3:
+								price2=train[i].standprice;
+							    break;
+							}
+							if(strcmp(tmpUser->type,"ѧ��")==0)
+							{
+							    tmpUser->price=price2*0.5;
+							}
+							else
+								tmpUser->price=price2;             //��ȡԭ����Ʊ��
+							break;
+						}
+			            else if(strcmp(train[i].tratype,"����")==0)
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_INTENSITY|FOREGROUND_RED);
+							printf("��Ҫ��ǩ�ĳ�����Ϣ����:\n");
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_INTENSITY|FOREGROUND_GREEN|FOREGROUND_RED|FOREGROUND_BLUE);
+			              	printf("|--------|--------------|-----------|-----------|-----------|\n");
+	                        printf("|������|��ʼվ--�յ�վ|������|Ʊ��|һ����|Ʊ��|������|Ʊ��|\n");
+			             	printf("|%-8s|%-6s--%-6s|%-6d|%-4.f|%-6d|%-4.f|%-6d|%-4.f\n",train[i].tratype,train[i].Sstation,
+			            	train[i].Estation,train[i].Btotal,train[i].Bprice,train[i].Ftotal,train[i].Fprice,train[i].Stotal,train[i].Sprice);
+			               	printf("|����|����ʱ��--��վʱ��|***��Ʊ��**|**��Ʊ��***|***��Ʊ��**|\n");
+		              		printf("|%-4s|%-8s--%-8s|**%-6d**|**%-6d**|**%-6d**|\n",train[i].traNum,train[i].Stime,
+		               		train[i].Etime,train[i].Bremain,train[i].Fremain,train[i].Sremain);
+		            		printf("|----|------------------|-----------|-----------|-----------|\n");
+							printf("��ѡ����Ҫ����ĸ�ǩ�����λ����\n");
+							printf("1.������\n2.һ����\n3.������\n");
+							scanf("%d",&select);
+							switch(select)
+							{                            //��
+							case 1:
+								price2=train[i].Bprice;
+
+							    break;
+							case 2:
+								price2=train[i].Fprice;
+							    break;
+							case 3:
+								price2=train[i].Sprice;
+							    break;
+							}
+							if(strcmp(tmpUser->type,"ѧ��")==0)
+							{
+							    tmpUser->price=price2*0.75;
+							}
+							else
+								tmpUser->price=price2;
+							break;                                     //��ȡԭ����Ʊ�ۡ�
+						}
+					}
+				}
+				if(exist==0)
+				{
+					break;
+				}
+				else
+				{
+				    printf("����������!\n");
+				}
+			}
+			while(1)
+			{
+				if(strcmp(train[i].traNum,traNum2)==0)         //��
+				{
+                    strcpy(tmpUser->traNum,train[i].traNum);
+					strcpy(tmpUser->tratype,train[i].tratype);
+					strcpy(tmpUser->Sstation,train[i].Sstation);
+					strcpy(tmpUser->Estation,train[i].Estation);
+					strcpy(tmpUser->Stime,train[i].Stime);
+					break;
+				}
+				i++;                                           //����ǰ���ε���Ϣ����ԭ�����ε���Ϣ��
+			}
+			if(price1>=tmpUser->price)                               //�Ƚ�ԭƱ�ۺ���Ʊ��
+			{
+				printf("��ϲ,��ǩ�ɹ�!����%.2lfԪ\n",price1-tmpUser->price);     //����
+				printf("��ǩ�����Ϣ����!\n");
+				headshow();
+				show(tmpUser);
+				break;
+			}
+			else
+			{
+				while(1)
+				{
+			    	printf("�벹%.2lfԪ�Ĳ��\n",tmpUser->price-price1);         //�ٲ�
+				    scanf("%lf",&price3);
+				    if(price3=tmpUser->price-price1)
+					{
+					    printf("��ϲ,��ǩ�ɹ�!��Ϣ����\n");
+					    headshow();
+				        show(tmpUser);
+						break;
+					}
+					else
+					{
+						printf("������Ĳ������,����������!\n");
+					}
+				}
+			}
+			}
+		}
+		else
+		{
+			printf("������ĳ��δ���,����������!\n");
+			Tmedify();
+		}
+		tmpUser=tmpUser->next;
+	}
+}
+//��ѯ�û�������Ϣ
+void show_usermessage()
+{
+	int exist=-1;
+	char name[20],ch;
+	USER*tmpUser=head->next;
+	printf("��������Ҫ��ѯ������:");
+	scanf("%s",name);
+	fflush(stdin);
+	while(tmpUser!=NULL)
+	{
+		if(strcmp(tmpUser->name,name)==0)
+		{
+	        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_INTENSITY|FOREGROUND_BLUE);
+			printf("������Ϣ����:\n");
+			printf("����:%s\n",tmpUser->name);
+			printf(":����֤����:%s\n",tmpUser->userID);
+			printf("�绰����:%s\n",tmpUser->phoneNum);
+			printf("ְҵ:%s\n",tmpUser->type);
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_INTENSITY|FOREGROUND_GREEN|FOREGROUND_RED|FOREGROUND_BLUE);
+			exist=0;
+			if(tmpUser->status==1)
+			{
+				printf("��������һ�Ż�Ʊ,�Ƿ�鿴?(Y/N)\n");
+				scanf("%c",&ch);
+				switch(ch)
+				{
+				case 'Y':
+					headshow();
+					show(tmpUser);
+					break;
+				case 'N':
+					break;
+				}
+				break;
+			}
+			else
+			{
+				printf("��δ��Ʊ!\n");
+				break;
+			}
+		}
+		tmpUser=tmpUser->next;
+	}
+	if(exist==-1)
+	{
+		printf("���������������!\n");
+		printf("����������..\n");
+		show_usermessage();
+	}
+}
+//������
+void main()
+{
+	int select;
+	char pass[20]="woshimima";
+	traindata();
+	userlist();
+	while(1)
+	{
+		mainmenu();
+		scanf("%d",&select);
+		switch(select)
+		{
+		case 1:
+			Register(pass);
+			break;
+		case 2:
+			system("cls");
+			zhuce();
+			
+			break;
+		case 3:
+			break;
+		}
+		if(select==3)
+			break;
+	}
+}
+
+
+
+
