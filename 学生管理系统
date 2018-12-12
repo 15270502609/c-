@@ -1,0 +1,111 @@
+#include<stdio.h>
+#include<string.h>
+#define N 10
+void save(int n);
+void in();
+void out();
+void sort(int n);
+void copy();
+void show();
+struct student
+{
+	int num;
+	char name[20];
+	float score[3];
+	float ave;
+}stu[N];
+void save(int n)
+{
+	FILE *fp;
+	int i;
+	fp=fopen("stud.dat","wb");
+	for(i=0;i<n;i++)
+		fwrite(&stu[i],sizeof(struct student),1,fp);
+	fclose(fp);
+}
+void in()
+{
+	int i,j;
+	for(i=0;i<10;i++)
+	{
+		printf("�������%d��ѧ��������:\n",i+1);
+		printf("ѧ��:");
+		scanf("%d",&stu[i].num);
+		printf("����:");
+		scanf("%s",stu[i].name);
+		for(j=0;j<3;j++)
+		{
+			printf("�ɼ�%d:",j+1);
+			scanf("%f",&stu[i].score[j]);
+		}
+		stu[i].ave=(stu[i].score[0]+stu[i].score[1]+stu[i].score[2])/3;
+	}
+}
+void out()
+{
+	FILE *fp;
+	int i;
+    fp=fopen("stud.dat","rb");
+	printf(" ѧ�� ���� �ɼ�1 �ɼ�2 �ɼ�3 ƽ���� \n");
+	for(i=0;i<10;i++)
+	{
+		printf("%5d%6s%7.1f%7.1f%7.1f%7.1f",stu[i].num,stu[i].name,
+		stu[i].score[0],stu[i].score[1],stu[i].score[2],stu[i].ave);
+		printf("\n");
+	}
+	fclose(fp);
+}
+void sort(int n)
+{
+	FILE *fp;
+	struct student t;
+	int i,j;
+    fp=fopen("stud.dat","r+");
+	for(i=0;i<n-1;i++)
+		for(j=0;j<n-1-i;j++)
+			if(stu[j].ave<stu[j+1].ave)
+			{
+				t=stu[j];
+				stu[j]=stu[j+1];
+				stu[j+1]=t;
+			}
+	fclose(fp);
+}
+void copy()
+{
+	FILE *fp;
+	int i;
+	fp=fopen("studsort.dat","wb");
+	for(i=0;i<10;i++)
+	{
+		fwrite(&stu[i],sizeof(struct student),1,fp);
+		fputc('\n',fp);
+	}
+	fclose(fp);
+}
+void show()
+{
+	FILE *fp;
+	int i;
+	fp=fopen("studsort.dat","rb");
+	printf("��2,4,6,8,10��ѧ��������Ϊ:\n");
+    printf(" ѧ�� ���� �ɼ�1 �ɼ�2 �ɼ�3 ƽ���� \n");
+	for(i=0;i<10;i=i+2)
+	{
+	    printf("%5d%6s%7.1f%7.1f%7.1f%7.1f",stu[i+1].num,stu[i+1].name,
+	    stu[i+1].score[0],stu[i+1].score[1],stu[i+1].score[2],stu[i+1].ave);
+	    printf("\n");
+	}
+	fclose(fp);
+}
+void main()
+{
+	in();
+	save(N);
+	out();
+	sort(N);
+	printf("��ƽ���������:\n");
+	out();
+	copy();
+	show();
+}
